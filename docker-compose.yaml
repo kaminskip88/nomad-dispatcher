@@ -1,0 +1,43 @@
+version: '3'
+
+services:
+  nomad:
+    image: multani/nomad:1.2.2
+    command: agent -dev
+    privileged: true
+    environment:
+      NOMAD_DATA_DIR: /tmp/nomad/data
+      NOMAD_LOCAL_CONFIG: |
+        datacenter = "${REGION:-dc1}"
+        region     = "${DATACENTER:-global}"
+
+        data_dir = "/nomad/data/"
+
+        bind_addr = "0.0.0.0"
+        advertise {
+          http = "{{ GetPrivateIP }}:4646"
+          rpc  = "{{ GetPrivateIP }}:4647"
+          serf = "{{ GetPrivateIP }}:4648"
+        }
+        client {
+          meta {
+            nomad_uid = "998"
+          }
+        }
+    ports:
+      - 4646:4646
+    volumes:
+      - /tmp/nomad/data:/tmp/nomad/data
+      - /var/run/docker.sock:/var/run/docker.sock:rw
+      - /tmp:/tmp
+
+  job:
+    image: multani/nomad:1.2.2
+    command: job run /app/job.nomad
+    environment:
+      - NOMAD_ADDR=http://nomad:4646
+    volumes:
+      - ./job.nomad:/app/job.nomad
+    depends_on:
+      - nomad
+    restart: on-failure

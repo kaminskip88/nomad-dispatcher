@@ -1,6 +1,7 @@
 package main
 
 import (
+	"io/ioutil"
 	"os"
 
 	"github.com/alexflint/go-arg"
@@ -24,6 +25,16 @@ func main() {
 	arg.MustParse(&conf)
 	// var c dispatcher.Config
 	c := dispatcher.Config(conf)
+
+	// read Payload
+	if conf.Payload != "" {
+		payload, err := ioutil.ReadFile(conf.Payload)
+		if err != nil {
+			os.Exit(1)
+		}
+		c.Payload = string(payload)
+	}
+
 	d, err := dispatcher.NewDispatcher(&c)
 	if err != nil {
 		os.Exit(1)

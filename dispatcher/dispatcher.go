@@ -2,7 +2,6 @@ package dispatcher
 
 import (
 	"fmt"
-	"io/ioutil"
 	"time"
 
 	"github.com/hashicorp/nomad/api"
@@ -60,21 +59,11 @@ func NewDispatcher(c *Config) (*Dispatcher, error) {
 		return nil, err
 	}
 
-	// read Payload
-	var payload []byte
-	if c.Payload != "" {
-		payload, err = ioutil.ReadFile(c.Payload)
-		if err != nil {
-			log.Error(err.Error())
-			return nil, err
-		}
-	}
-
 	dispatcher := &Dispatcher{
 		client:     client,
 		job:        c.Job,
 		meta:       c.Meta,
-		payload:    payload,
+		payload:    []byte(c.Payload),
 		interval:   interval,
 		jobRetry:   c.JobRetry,
 		allocRetry: c.AllocRetry,
