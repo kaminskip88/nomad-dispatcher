@@ -31,6 +31,7 @@ func NewDispatcher(c *Config) (*Dispatcher, error) {
 	}
 	log.SetFormatter(&log.TextFormatter{
 		FullTimestamp: true,
+		ForceColors:   true,
 	})
 
 	// set global interval
